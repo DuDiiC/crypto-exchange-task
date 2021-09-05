@@ -1,0 +1,8 @@
+server:
+  tomcat:
+    relaxed-query-chars: '|,{,},[,]'
+  error.include-message: always
+
+coin-ranking.api:
+  key: ${{ secrets.COIN_RANKING_API_KEY }}
+  base-url: 'https://api.coinranking.com/v2/coins'
