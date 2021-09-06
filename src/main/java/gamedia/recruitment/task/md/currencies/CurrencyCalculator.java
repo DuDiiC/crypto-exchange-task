@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 import java.util.Optional;
 
 @Component
-public class CoinCalculator {
+public class CurrencyCalculator {
 
     public Optional<BigDecimal> calculateRate(BigDecimal sourceCoinUsdPrice, BigDecimal destCoinUsdPrice, int scale) {
         if (sourceCoinUsdPrice == null || destCoinUsdPrice == null || sourceCoinUsdPrice.doubleValue() == 0.0) {

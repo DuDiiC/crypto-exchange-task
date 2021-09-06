@@ -10,9 +10,9 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CoinCalculatorTest {
+class CurrencyCalculatorTest {
 
-    private final CoinCalculator coinCalculator = new CoinCalculator();
+    private final CurrencyCalculator currencyCalculator = new CurrencyCalculator();
 
     @Nested
     class CalculateRateTest {
@@ -26,7 +26,7 @@ class CoinCalculatorTest {
                 BigDecimal sourceCoinUsdPrice, BigDecimal destCoinUsdPrice,
                 Integer scale, BigDecimal result
         ) {
-            BigDecimal calculated = coinCalculator.calculateRate(
+            BigDecimal calculated = currencyCalculator.calculateRate(
                     sourceCoinUsdPrice, destCoinUsdPrice, scale
             ).orElseThrow();
             assertEquals(result, calculated);
@@ -35,7 +35,7 @@ class CoinCalculatorTest {
         @ParameterizedTest
         @MethodSource("anyNullArgument")
         void whenNullArguments_thenReturnEmptyOptional(BigDecimal sourceCoinUsdPrice, BigDecimal destCoinUsdPrice) {
-            assertTrue(coinCalculator.calculateRate(sourceCoinUsdPrice, destCoinUsdPrice, 1).isEmpty());
+            assertTrue(currencyCalculator.calculateRate(sourceCoinUsdPrice, destCoinUsdPrice, 1).isEmpty());
         }
 
         private static Stream<Arguments> anyNullArgument() {
@@ -48,7 +48,7 @@ class CoinCalculatorTest {
 
         @Test
         void whenTryDivideByZero_thenReturnEmptyOptional() {
-            assertTrue(coinCalculator.calculateRate(BigDecimal.ZERO, BigDecimal.ONE, 1).isEmpty());
+            assertTrue(currencyCalculator.calculateRate(BigDecimal.ZERO, BigDecimal.ONE, 1).isEmpty());
         }
     }
 
@@ -64,7 +64,7 @@ class CoinCalculatorTest {
                 BigDecimal sourceCoinUsdPrice, BigDecimal amount, BigDecimal quoteToDestCoin,
                 int scale, BigDecimal expected
         ) {
-            BigDecimal calculated = coinCalculator.calculateExchange(
+            BigDecimal calculated = currencyCalculator.calculateExchange(
                     sourceCoinUsdPrice, amount, quoteToDestCoin, scale
             ).orElseThrow();
             assertEquals(expected, calculated);
@@ -75,7 +75,7 @@ class CoinCalculatorTest {
         void whenNullArguments_thenReturnEmptyOptional(
                 BigDecimal sourceCoinUsdPrice, BigDecimal amount, BigDecimal quoteToDestCoin
         ) {
-            assertTrue(coinCalculator.calculateExchange(sourceCoinUsdPrice, amount, quoteToDestCoin, 1).isEmpty());
+            assertTrue(currencyCalculator.calculateExchange(sourceCoinUsdPrice, amount, quoteToDestCoin, 1).isEmpty());
         }
 
         private static Stream<Arguments> anyNullArgument() {
@@ -102,7 +102,7 @@ class CoinCalculatorTest {
         void whenStandardInput_thenReturnCorrectFee(
                 BigDecimal sourceCoinUsdPrice, BigDecimal standardFee,
                 BigDecimal amount, int scale, BigDecimal expected) {
-            BigDecimal calculated = coinCalculator.calculateFee(
+            BigDecimal calculated = currencyCalculator.calculateFee(
                     sourceCoinUsdPrice, standardFee, amount, scale
             ).orElseThrow();
             assertEquals(expected, calculated);
@@ -113,7 +113,7 @@ class CoinCalculatorTest {
         void whenNullArguments_thenReturnEmptyOptional(
                 BigDecimal sourceCoinUsdPrice, BigDecimal standardFee, BigDecimal amount
         ) {
-            assertTrue(coinCalculator.calculateFee(sourceCoinUsdPrice, standardFee, amount, 1).isEmpty());
+            assertTrue(currencyCalculator.calculateFee(sourceCoinUsdPrice, standardFee, amount, 1).isEmpty());
         }
 
         private static Stream<Arguments> anyNullArgument() {

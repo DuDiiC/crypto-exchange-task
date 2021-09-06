@@ -1,7 +1,7 @@
 package gamedia.recruitment.task.md.currencies.client;
 
 import gamedia.recruitment.task.md.currencies.ClientConfig;
-import gamedia.recruitment.task.md.currencies.CoinCalculator;
+import gamedia.recruitment.task.md.currencies.CurrencyCalculator;
 import gamedia.recruitment.task.md.currencies.CurrencyService;
 import gamedia.recruitment.task.md.currencies.dtos.ExchangeForCurrency;
 import gamedia.recruitment.task.md.currencies.dtos.ExchangeRequest;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 class CoinRankingCurrencyService implements CurrencyService {
 
     private final RestTemplate restTemplate;
-    private final CoinCalculator coinCalculator;
+    private final CurrencyCalculator currencyCalculator;
     private final ClientConfig clientConfig;
 
     @Override
@@ -88,7 +88,7 @@ class CoinRankingCurrencyService implements CurrencyService {
         Map<String, BigDecimal> quotes = new HashMap<>();
         if (!destCoins.isEmpty()) {
             destCoins.forEach(destCoin ->
-                    quotes.put(destCoin, coinCalculator.calculateRate(
+                    quotes.put(destCoin, currencyCalculator.calculateRate(
                             sourceCoinPrice,
                             coins.get(destCoin).price(),
                             10
@@ -96,7 +96,7 @@ class CoinRankingCurrencyService implements CurrencyService {
             );
         } else {
             coins.forEach((symbol, coin) ->
-                    quotes.put(symbol, coinCalculator.calculateRate(
+                    quotes.put(symbol, currencyCalculator.calculateRate(
                             sourceCoinPrice,
                             coin.price(),
                             10
@@ -112,14 +112,14 @@ class CoinRankingCurrencyService implements CurrencyService {
 
         coins.forEach((symbol, coin) -> {
 
-            BigDecimal exchange = coinCalculator.calculateExchange(
+            BigDecimal exchange = currencyCalculator.calculateExchange(
                     sourceCoinPrice,
                     exchangeRequest.amount(),
                     quotes.get(symbol),
                     4
             ).orElse(BigDecimal.ZERO).setScale(10, RoundingMode.HALF_UP);
 
-            BigDecimal fee = coinCalculator.calculateFee(
+            BigDecimal fee = currencyCalculator.calculateFee(
                     sourceCoinPrice,
                     new BigDecimal("0.01"),
                     exchangeRequest.amount(),

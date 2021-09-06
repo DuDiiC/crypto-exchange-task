@@ -1,7 +1,7 @@
 package gamedia.recruitment.task.md.currencies.client;
 
 import gamedia.recruitment.task.md.currencies.ClientConfig;
-import gamedia.recruitment.task.md.currencies.CoinCalculator;
+import gamedia.recruitment.task.md.currencies.CurrencyCalculator;
 import gamedia.recruitment.task.md.currencies.dtos.ExchangeRequest;
 import gamedia.recruitment.task.md.currencies.dtos.QuotesResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,13 +44,13 @@ class CoinRankingCurrencyServiceTest {
     };
     private CoinRankingCurrencyService service;
     @Mock
-    private CoinCalculator coinCalculator;
+    private CurrencyCalculator currencyCalculator;
     @Mock
     private RestTemplate restTemplate;
 
     @BeforeEach
     void setUp() {
-        service = new CoinRankingCurrencyService(restTemplate, coinCalculator, clientConfig);
+        service = new CoinRankingCurrencyService(restTemplate, currencyCalculator, clientConfig);
     }
 
     @Nested
@@ -58,7 +58,7 @@ class CoinRankingCurrencyServiceTest {
 
         @Test
         void whenGetQuotesForCurrency_thenReturnCorrectResponseRecord() {
-            when(coinCalculator.calculateRate(any(), any(), anyInt()))
+            when(currencyCalculator.calculateRate(any(), any(), anyInt()))
                     .thenReturn(Optional.of(BigDecimal.ONE));
             when(restTemplate.getForObject(anyString(), any(), anyMap()))
                     .thenReturn(new Response("success", new ResponseData(List.of(
@@ -82,11 +82,11 @@ class CoinRankingCurrencyServiceTest {
 
         @Test
         void whenGetQuotesForCurrency_thenReturnCorrectResponseRecord() {
-            when(coinCalculator.calculateRate(any(), any(), anyInt()))
+            when(currencyCalculator.calculateRate(any(), any(), anyInt()))
                     .thenReturn(Optional.of(BigDecimal.ONE));
-            when(coinCalculator.calculateExchange(any(), any(), any(), anyInt()))
+            when(currencyCalculator.calculateExchange(any(), any(), any(), anyInt()))
                     .thenReturn(Optional.of(BigDecimal.ONE));
-            when(coinCalculator.calculateFee(any(), any(), any(), anyInt()))
+            when(currencyCalculator.calculateFee(any(), any(), any(), anyInt()))
                     .thenReturn(Optional.of(BigDecimal.ONE));
             when(restTemplate.getForObject(anyString(), any(), anyMap()))
                     .thenReturn(new Response("success", new ResponseData(List.of(

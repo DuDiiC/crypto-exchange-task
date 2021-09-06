@@ -27,7 +27,7 @@ class CurrencyController {
     }
 
     @PostMapping("/exchange")
-    public Map<String, Object> calculateExchange(@RequestBody @Valid ExchangeRequest exchangeRequest) {
+    public Map<String, Object> getCalculatedExchange(@RequestBody @Valid ExchangeRequest exchangeRequest) {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("from", exchangeRequest.sourceCoin());
         Map<String, Object> exchangesForCurrency = service.getExchangesForCurrency(exchangeRequest);
