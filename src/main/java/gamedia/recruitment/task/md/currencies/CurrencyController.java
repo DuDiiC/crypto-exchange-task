@@ -7,9 +7,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/currencies")
@@ -28,10 +29,8 @@ class CurrencyController {
 
     @PostMapping("/exchange")
     public Map<String, Object> getCalculatedExchange(@RequestBody @Valid ExchangeRequest exchangeRequest) {
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("from", exchangeRequest.sourceCoin());
-        Map<String, Object> exchangesForCurrency = service.getExchangesForCurrency(exchangeRequest);
-        responseBody.putAll(exchangesForCurrency);
-        return responseBody;
+        return Stream.of(Map.of("from", exchangeRequest.sourceCoin()), service.getExchangesForCurrency(exchangeRequest))
+                .flatMap(map -> map.entrySet().stream())
+                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
