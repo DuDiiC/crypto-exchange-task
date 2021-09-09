@@ -29,7 +29,7 @@ class CoinRankingCurrencyService implements CurrencyService {
     public QuotesResponse getQuotesForCurrency(String sourceCoin, List<String> destCoins) {
 
         final String uri = uriBuilder.buildUri(prepareArray(sourceCoin, destCoins)).orElseThrow();
-        final Response response = clientRestRequest.getForObject(uri, Response.class).orElseThrow();
+        final Response response = clientRestRequest.getForObject(uri).orElseThrow();
 
         if (response.data() == null) {
             return new QuotesResponse(sourceCoin, Collections.emptyMap());
@@ -49,7 +49,7 @@ class CoinRankingCurrencyService implements CurrencyService {
                 prepareArray(exchangeRequest.sourceCoin(), exchangeRequest.destCoins())
         ).orElseThrow();
 
-        final Response response = clientRestRequest.getForObject(uri, Response.class).orElseThrow();
+        final Response response = clientRestRequest.getForObject(uri).orElseThrow();
 
         Map<String, Coin> coins = prepareCoinsMapFromClientApiResponse(response);
 
