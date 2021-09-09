@@ -1,6 +1,7 @@
 package gamedia.recruitment.task.md.currencies.client;
 
-import gamedia.recruitment.task.md.currencies.ClientConfig;
+import gamedia.recruitment.task.md.currencies.ClientRestRequest;
+import gamedia.recruitment.task.md.currencies.ClientUriBuilder;
 import gamedia.recruitment.task.md.currencies.CurrencyCalculator;
 import gamedia.recruitment.task.md.currencies.CurrencyService;
 import gamedia.recruitment.task.md.currencies.dtos.ExchangeForCurrency;
@@ -8,31 +9,29 @@ import gamedia.recruitment.task.md.currencies.dtos.ExchangeRequest;
 import gamedia.recruitment.task.md.currencies.dtos.QuotesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 class CoinRankingCurrencyService implements CurrencyService {
 
-    private final RestTemplate restTemplate;
     private final CurrencyCalculator currencyCalculator;
-    private final ClientConfig clientConfig;
+    private final ClientUriBuilder uriBuilder;
+    private final ClientRestRequest<Response> clientRestRequest;
 
     @Override
     public QuotesResponse getQuotesForCurrency(String sourceCoin, List<String> destCoins) {
 
-        String uri = buildUri(sourceCoin, destCoins);
-        Response response = restTemplate.getForObject(uri, Response.class, Map.of("x-access-token", clientConfig.getApiKey()));
-        if (response == null || response.data() == null) {
+        final String uri = uriBuilder.buildUri(prepareArray(sourceCoin, destCoins)).orElseThrow();
+        final Response response = clientRestRequest.getForObject(uri, Response.class).orElseThrow();
+
+        if (response.data() == null) {
             return new QuotesResponse(sourceCoin, Collections.emptyMap());
         }
         Map<String, Coin> coins = prepareCoinsMapFromClientApiResponse(response);
@@ -46,12 +45,12 @@ class CoinRankingCurrencyService implements CurrencyService {
 
     @Override
     public Map<String, Object> getExchangesForCurrency(ExchangeRequest exchangeRequest) {
+        final String uri = uriBuilder.buildUri(
+                prepareArray(exchangeRequest.sourceCoin(), exchangeRequest.destCoins())
+        ).orElseThrow();
 
-        String uri = buildUri(exchangeRequest.sourceCoin(), exchangeRequest.destCoins());
-        Response response = restTemplate.getForObject(uri, Response.class, Map.of("x-access-token", clientConfig.getApiKey()));
-        if (response == null || response.data() == null) {
-            return Collections.emptyMap();
-        }
+        final Response response = clientRestRequest.getForObject(uri, Response.class).orElseThrow();
+
         Map<String, Coin> coins = prepareCoinsMapFromClientApiResponse(response);
 
         BigDecimal sourceCoinPrice = coins.get(exchangeRequest.sourceCoin()).price();
@@ -59,19 +58,6 @@ class CoinRankingCurrencyService implements CurrencyService {
 
         Map<String, BigDecimal> quotes = calculateQuotes(sourceCoinPrice, exchangeRequest.destCoins(), coins);
         return calculateExchanges(exchangeRequest, sourceCoinPrice, coins, quotes);
-    }
-
-    String buildUri(String currency, List<String> filters) {
-
-        String uri = clientConfig.getApiBaseUrl();
-
-        if (!filters.isEmpty()) {
-            StringBuilder sb = new StringBuilder(uri).append("?symbols[]=").append(currency);
-            filters.forEach(filter -> sb.append("&symbols[]=").append(filter));
-            uri = sb.toString();
-        }
-
-        return uri;
     }
 
     Map<String, Coin> prepareCoinsMapFromClientApiResponse(Response response) {
@@ -135,5 +121,9 @@ class CoinRankingCurrencyService implements CurrencyService {
         });
 
         return exchanges;
+    }
+
+    private String[] prepareArray(String param, List<String> otherParams) {
+        return Stream.concat(Arrays.stream(Collections.singletonList(param).toArray()), otherParams.stream()).toArray(String[]::new);
     }
 }
